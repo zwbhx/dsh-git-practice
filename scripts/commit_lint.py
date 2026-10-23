@@ -74,7 +74,9 @@ def validate(message: str, types: tuple[str, ...] = DEFAULT_TYPES,
     if scope is not None and scope != "" and not SCOPE_PATTERN.match(scope):
         errors.append(f"scope `{scope}` 必须是 kebab-case（小写字母/数字/连字符）")
 
-    if scopes is not None and scope not in scopes:
+    # scope 是可选项：只有「给了 scope」且「配置了非空白名单」时才校验。
+    # 空白名单/ None 一律视为不启用，避免把 `docs: xxx` 这类无 scope 提交误杀。
+    if scopes and scope and scope not in scopes:
         errors.append(f"scope `{scope}` 不在允许列表 {list(scopes)} 内")
 
     subject = info["subject"]

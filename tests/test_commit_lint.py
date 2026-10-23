@@ -58,5 +58,28 @@ class TestValidate(unittest.TestCase):
         self.assertEqual(cl.validate("wip: 临时存档", types=("wip",)), [])
 
 
+class TestScopeAllowlist(unittest.TestCase):
+    """review 意见 R1 的回归用例：scope 白名单不能误杀合法提交。"""
+
+    def test_scope_in_allowlist(self):
+        self.assertEqual(cl.validate("feat(cli): 新增参数", scopes=("cli", "lint")), [])
+
+    def test_scope_not_in_allowlist(self):
+        errors = cl.validate("feat(api): 新增接口", scopes=("cli", "lint"))
+        self.assertTrue(any("不在允许列表" in e for e in errors))
+
+    def test_scope_less_commit_still_passes(self):
+        # 关键回归：无 scope 的提交不该被 scope 白名单拦截
+        self.assertEqual(cl.validate("docs: 补充约定", scopes=("cli", "lint")), [])
+
+    def test_empty_allowlist_means_disabled(self):
+        # 关键回归：空元组视为不启用，而不是「全部拒绝」
+        self.assertEqual(cl.validate("docs: 补充约定", scopes=()), [])
+        self.assertEqual(cl.validate("feat(api): 新增接口", scopes=()), [])
+
+    def test_none_means_disabled(self):
+        self.assertEqual(cl.validate("chore(deps): 升级依赖", scopes=None), [])
+
+
 if __name__ == "__main__":
     unittest.main()
