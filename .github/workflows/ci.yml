@@ -1,0 +1,72 @@
+name: CI
+
+# 何时跑：推送到 main、任何 PR、以及手动触发
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# 权限最小化：CI 只需要读代码
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint + test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # 需要拿到提交信息做 commit lint
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 语法编译检查（等价 lint）
+        run: python -m compileall -q scripts tests
+
+      - name: 单元测试
+        run: python -m unittest discover -s tests -v
+
+      - name: 提交信息规范检查
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        env:
+          # 用环境变量传，避免把用户输入拼进 shell
+          COMMIT_SUBJECT: ${{ github.event.pull_request.title || github.event.head_commit.message }}
+        run: |
+          printf '%s\n' "$COMMIT_SUBJECT" > /tmp/msg.txt
+          python scripts/commit_lint.py --file /tmp/msg.txt
+        continue-on-error: false
+
+  # 只有 main 上通过才继续做「打包」示范（这里用 zip 代替真实产物）
+  package:
+    name: package artifact
+    needs: check
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          mkdir -p dist
+          zip -r dist/git-practice-repo.zip scripts docs README.md
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: practice-repo-zip
+          path: dist/git-practice-repo.zip
+          retention-days: 7
