@@ -6,6 +6,7 @@
     echo "feat: foo" | python scripts/commit_lint.py              # 从 stdin 读
     python scripts/commit_lint.py --file .git/COMMIT_EDITMSG      # 校验 commit 模板文件
     python scripts/commit_lint.py --types feat,fix ""             # 自定义允许的 type
+    python scripts/commit_lint.py --scopes cli,lint "feat(cli): x"  # 限定 scope 白名单
 
 规则（来自 Conventional Commits 1.0.0 + 本地团队约定）：
     <type>(<scope>): <subject>
@@ -51,7 +52,8 @@ def parse(message: str) -> dict:
     }
 
 
-def validate(message: str, types: tuple[str, ...] = DEFAULT_TYPES) -> list[str]:
+def validate(message: str, types: tuple[str, ...] = DEFAULT_TYPES,
+             scopes: tuple[str, ...] | None = None) -> list[str]:
     """返回错误列表；空列表表示通过。"""
     errors: list[str] = []
     if not (message or "").strip():
@@ -72,6 +74,9 @@ def validate(message: str, types: tuple[str, ...] = DEFAULT_TYPES) -> list[str]:
     if scope is not None and scope != "" and not SCOPE_PATTERN.match(scope):
         errors.append(f"scope `{scope}` 必须是 kebab-case（小写字母/数字/连字符）")
 
+    if scopes is not None and scope not in scopes:
+        errors.append(f"scope `{scope}` 不在允许列表 {list(scopes)} 内")
+
     subject = info["subject"]
     if not subject.strip():
         errors.append("subject 不能为空")
@@ -91,6 +96,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("message", nargs="?", default=None, help="提交信息；省略则读 stdin")
     parser.add_argument("--file", default=None, help="从文件读取提交信息")
     parser.add_argument("--types", default=",".join(DEFAULT_TYPES), help="逗号分隔的 type 白名单")
+    parser.add_argument("--scopes", default=None, help="逗号分隔的 scope 白名单；省略则不限制")
     args = parser.parse_args(argv)
 
     if args.file:
@@ -102,7 +108,8 @@ def main(argv: list[str] | None = None) -> int:
         message = sys.stdin.read()
 
     types = tuple(t.strip() for t in args.types.split(",") if t.strip())
-    errors = validate(message, types=types)
+    scopes = tuple(s.strip() for s in args.scopes.split(",")) if args.scopes else None
+    errors = validate(message, types=types, scopes=scopes)
     if errors:
         print("[commit_lint] 不通过：")
         for err in errors:
