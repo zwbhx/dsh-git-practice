@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dsh-git-practice · GitHub 常态化练习仓库</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0; padding: 2.5rem 1.25rem;
+    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    max-width: 46rem; margin-inline: auto;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+  .sub { color: #6a737d; font-size: .9rem; margin-bottom: 2rem; }
+  h2 { font-size: 1.05rem; margin-top: 2rem; border-bottom: 1px solid #e1e4e8; padding-bottom: .35rem; }
+  ul { padding-left: 1.25rem; }
+  li { margin: .35rem 0; }
+  code { background: rgba(27,31,35,.06); padding: .12em .35em; border-radius: 4px; font-size: .9em; }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e1e4e8; color: #6a737d; font-size: .85rem; }
+  a { color: #0366d6; }
+</style>
+</head>
+<body>
+
+<h1>dsh-git-practice</h1>
+<p class="sub">GitHub 常态化学习的练习仓库 · 由 GitHub Pages 托管（本页即 Pages 产物）</p>
+
+<h2>这个仓库是干什么的</h2>
+<ul>
+  <li>练习 <strong>Conventional Commits</strong>：提交信息由 <code>scripts/commit_lint.py</code> 校验</li>
+  <li>练习 <strong>Issue → 分支 → PR → review → 合并 → tag/release</strong> 的闭环</li>
+  <li>练习 <strong>GitHub Actions</strong>：CI 跑语法检查 + 21 个单元测试 + 提交信息检查</li>
+  <li>练习 <strong>分支保护</strong>：main 必须走 PR、必须状态检查通过、禁止 force push</li>
+</ul>
+
+<h2>你正在看的这一页证明了什么</h2>
+<ul>
+  <li>Pages 已启用，且能从 <code>main</code> 分支根目录构建静态站点</li>
+  <li>本文件 <code>index.html</code> 与 <code>.github/CODEOWNERS</code> 是通过 <strong>PR</strong> 合入的，而不是直接 push 到 main —— 因为 main 已被分支保护</li>
+</ul>
+
+<h2>本地等价命令</h2>
+<ul>
+  <li><code>python -m unittest discover -s tests -v</code> —— 21 个测试</li>
+  <li><code>python scripts/commit_lint.py "feat(cli): 新增参数"</code> —— 校验提交信息</li>
+  <li><code>python scripts/weekly_checklist.py --month</code> —— 生成周例行清单</li>
+</ul>
+
+<footer>
+  仓库：<a href="https://github.com/zwbhx/dsh-git-practice">github.com/zwbhx/dsh-git-practice</a>
+  · 本页用于验证 GitHub Pages 可用性，不含任何追踪脚本或外部资源
+</footer>
+
+</body>
+</html>
