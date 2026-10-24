@@ -1,0 +1,33 @@
+# CODEOWNERS —— 谁对哪类文件负责
+#
+# 语法：<pattern>  <owner1> <owner2> ...
+# - 最后匹配的那一行生效（越靠下优先级越高）
+# - @username 必须是**对该仓库有写权限**的账号或团队
+# - 位置：.github/CODEOWNERS（也可放仓库根或 docs/，.github/ 优先级最高）
+#
+# ⚠️ 个人仓库的现实约束（本仓库为 zwbhx 单人仓库）：
+#   1) 这份文件本身不会"自动分派"——它只在两处起作用：
+#      ① PR 页面自动把 owner 加为 requested reviewer；
+#      ② 分支保护里勾选「Require review from Code Owners」后，改到这些路径的 PR 必须由 owner 批准。
+#   2) 单人仓库若开启「Require review from Code Owners」，会**自己无法合并自己的 PR**
+#      （GitHub 不允许自己批准自己的 PR）。因此本仓库的分支保护**未开启**该项，
+#      当前只依赖「必须走 PR + 状态检查必须通过」。
+#   3) 判断解析是否生效：GET /repos/{owner}/{repo}/codeowners/errors
+
+# 默认：仓库所有文件归所有者
+*                       @zwbhx
+
+# 基础设施与协作配置：改动会影响所有人的工作流，务必单独列
+/.github/               @zwbhx
+/.github/workflows/     @zwbhx
+/.github/CODEOWNERS     @zwbhx
+/CODEOWNERS             @zwbhx
+
+# 自动化脚本与测试：改测试等于改验收标准
+/scripts/               @zwbhx
+/tests/                 @zwbhx
+
+# 文档与版本记录
+/docs/                  @zwbhx
+/README.md              @zwbhx
+/CHANGELOG.md           @zwbhx
